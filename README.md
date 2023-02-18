@@ -3,7 +3,7 @@
 cardAuto
 </h1>
 <p align="center">
-实习备案自动打卡解决方案
+实习备案自动打卡
 </p>
 <p align="center">
 支持多用户、自定义位置与时间、微信消息推送
@@ -156,9 +156,9 @@ Secret填改好的配置文件
 3、运行命令来下载依赖。
 
 ```python
-pip install requests -i https://pypi.douban.com/simple/
-pip install pytz -i https://pypi.douban.com/simple/
-pip install pycryptodome -i https://pypi.douban.com/simple/
+pip install requests
+pip install pytz
+pip install pycryptodome
 ```
 
 4、在百度搜索：你的操作系统+ 定时任务，查看如何创建定时任务。

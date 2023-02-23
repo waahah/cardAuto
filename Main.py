@@ -8,6 +8,13 @@ from requests.adapters import HTTPAdapter
 
 import MessagePush
 
+import datetime
+import time
+import pytz as pytz
+
+tz = pytz.timezone('Asia/Shanghai')  # 东八区
+t = datetime.datetime.fromtimestamp(int(time.time()), tz).strftime('%Y-%m-%d %H:%M:%S %Z%z')
+
 requests.adapters.DEFAULT_RETRIES = 10
 pwd = os.path.dirname(os.path.abspath(__file__)) + os.sep
 
@@ -21,7 +28,7 @@ headers = {
     "phone": "Honor|COL-AL10|10",
     "appVersion": "40",
     "Sign": "Sign",
-    "cl_ip": "192.168.1.3",
+    "cl_ip": "192.168.1.4",
     "User-Agent": "okhttp/3.14.9",
     "Content-Type": "application/json;charset=utf-8"
 }
@@ -106,14 +113,14 @@ def prepareSign(user):
     res, token = getToken()
     if not res:
         print('用户', user['alias'], '获取Token失败')
-        MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡获取Token失败，错误原因：' + token, user["pushKey"])
+        MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡获取Token失败，错误原因：' + token, user["pushKey"],user['alias'],user['address'],t)
         return
 
     loginResp = login(user, token)
 
     if loginResp["code"] != 1001:
         print('用户', user['alias'], '登录账号失败，错误原因：', loginResp["msg"])
-        MessagePush.pushMessage('职校家园登录失败！', '职校家园登录失败，错误原因：' + loginResp["msg"], user["pushKey"])
+        MessagePush.pushMessage('职校家园登录失败！', '职校家园登录失败，错误原因：' + loginResp["msg"], user["pushKey"],user['alias'],user['address'],t)
         return
 
     uid = loginResp["data"]["uid"]
@@ -121,10 +128,10 @@ def prepareSign(user):
 
     if resp:
         print(user["alias"], '打卡成功！')
-        MessagePush.pushMessage('职校家园打卡成功！', '用户：' + user["phone"] + '职校家园打卡成功!', user["pushKey"])
+        MessagePush.pushMessage('职校家园打卡成功！', '职校家园打卡成功!', user["pushKey"],user['alias'],user['address'],t)
         return
     print(user["alias"], "打卡失败")
-    MessagePush.pushMessage('职校家园打卡失败！', '用户：' + user["phone"] + '职校家园打卡失败!原因:' + msg, user["pushKey"])
+    MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡失败!原因:' + msg, user["pushKey"],user['alias'],user['address'],t)
 
 
 if __name__ == '__main__':
@@ -138,4 +145,4 @@ if __name__ == '__main__':
             MessagePush.pushMessage('职校家园打卡失败',
                                     '职校家园打卡失败,' +
                                     '具体错误信息：' + str(e)
-                                    , user["pushKey"])
+                                    , user["pushKey"],user['alias'],user['address'],t)

@@ -12,6 +12,8 @@ import datetime
 import time
 import pytz as pytz
 
+allMessage = ""
+
 tz = pytz.timezone('Asia/Shanghai')  # 东八区
 t = datetime.datetime.fromtimestamp(int(time.time()), tz).strftime('%Y-%m-%d %H:%M:%S %Z%z')
 
@@ -102,25 +104,30 @@ def login(user, token):
 
 
 def prepareSign(user):
+    global allMessage
     if not user["enable"]:
         print(user['alias'], '未启用打卡，即将跳过')
+        allMessage = allMessage + f" {user['alias']} 未启用打卡</br>"
         return
 
     print('已加载用户', user['alias'], '即将开始打卡')
+    #allMessage = allMessage + f"已加载用户 {user['alias']}</br>"
 
     headers["phone"] = user["deviceType"]
 
     res, token = getToken()
     if not res:
-        print('用户', user['alias'], '获取Token失败')
-        MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡获取Token失败，错误原因：' + token, user["pushKey"],user['alias'],user['address'],t)
+        print('用户', user['alias'], '获取Token失败!原因：', token)
+        pushToken = MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡获取Token失败，错误原因：' + token, user["pushKey"],user['alias'],user['address'],t)
+        allMessage = allMessage + f"用户 {user['alias']} 获取Token失败!原因：{token}</br>{pushToken}"
         return
 
     loginResp = login(user, token)
 
     if loginResp["code"] != 1001:
         print('用户', user['alias'], '登录账号失败，错误原因：', loginResp["msg"])
-        MessagePush.pushMessage('职校家园登录失败！', '职校家园登录失败，错误原因：' + loginResp["msg"], user["pushKey"],user['alias'],user['address'],t)
+        pushLogin = MessagePush.pushMessage('职校家园登录失败！', '职校家园登录失败，错误原因：' + loginResp["msg"], user["pushKey"],user['alias'],user['address'],t)
+        allMessage = allMessage + f"用户 {user['alias']} 登录账号失败，错误原因：{loginResp['msg']}</br>{pushLogin}"
         return
 
     uid = loginResp["data"]["uid"]
@@ -128,10 +135,12 @@ def prepareSign(user):
 
     if resp:
         print(user["alias"], '打卡成功！')
-        MessagePush.pushMessage('职校家园打卡成功！', '职校家园打卡成功!', user["pushKey"],user['alias'],user['address'],t)
+        pushSuccess = MessagePush.pushMessage('职校家园打卡成功！', '职校家园打卡成功!', user["pushKey"],user['alias'],user['address'],t)
+        allMessage = allMessage + f"{user['alias']} 打卡成功！</br>{pushSuccess}"
         return
-    print(user["alias"], "打卡失败！原因:", msg)
-    MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡失败!原因:' + msg, user["pushKey"],user['alias'],user['address'],t)
+    print(user["alias"], "打卡失败!原因:", msg)
+    pushFailed = MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡失败!原因:' + msg, user["pushKey"],user['alias'],user['address'],t)
+    allMessage = allMessage + f"用户 {user['alias']} 打卡失败!原因:{msg}</br>{pushFailed}"
 
 
 if __name__ == '__main__':
@@ -142,7 +151,13 @@ if __name__ == '__main__':
             prepareSign(user)
         except Exception as e:
             print('职校家园打卡失败，错误原因：' + str(e))
+            allMessage = allMessage + f"{user['alias']} 打卡失败!原因:{str(e)}</br>"
             MessagePush.pushMessage('职校家园打卡失败',
                                     '职校家园打卡失败,' +
                                     '具体错误信息：' + str(e)
-                                    , user["pushKey"],user['alias'],user['address'],t)
+                                    , user["pushKey"],user['alias'],user['address'],t,allMessage)
+    try:
+        MessagePush.pushAllMessage(allMessage)
+    except Exception as e:
+        print('所有用户打卡情况统计推送失败！错误原因：' + str(e))
+        

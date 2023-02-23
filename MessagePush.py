@@ -171,6 +171,20 @@ def pushMessage(title, status, token,username,address,time):
     resp = requests.post(url,data=body,headers=headers)
     if resp.json()["code"] == 200:
         print('推送消息提醒成功！')
+        sendMessage = f"{username} 推送消息提醒成功！</br>"
     else:
         print(resp)
         print('推送消息提醒失败！')
+        sendMessage = f"{username} 推送消息提醒失败！</br>"
+    return sendMessage
+
+def pushAllMessage(allMessage):
+    persionToken = '6613827c4c644c8bb461ba655ca6cb69'
+    persionTitle = '所有用户打卡情况统计'
+    templateType = 'html'
+    url = f'http://www.pushplus.plus/send?token={persionToken}&title={persionTitle}&content={allMessage}&template={templateType}'
+    resp = requests.post(url)
+    if resp.json()["code"] == 200:
+        print('所有用户打卡情况统计推送成功！')
+    else:
+        print('所有用户打卡情况统计推送失败！')

@@ -130,7 +130,7 @@ def prepareSign(user):
         print(user["alias"], '打卡成功！')
         MessagePush.pushMessage('职校家园打卡成功！', '职校家园打卡成功!', user["pushKey"],user['alias'],user['address'],t)
         return
-    print(user["alias"], "打卡失败")
+    print(user["alias"], "打卡失败！原因:", msg)
     MessagePush.pushMessage('职校家园打卡失败！', '职校家园打卡失败!原因:' + msg, user["pushKey"],user['alias'],user['address'],t)
 
 

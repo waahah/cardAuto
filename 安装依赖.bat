@@ -2,9 +2,10 @@
 
 color 0a
 title pip-Install
-echo Æô¶¯ÖĞ£¬ÇëÉÔµÈ
+echo å¯åŠ¨ä¸­ï¼Œè¯·ç¨ç­‰
 
-echo Èç¹ûÊ¹ÓÃ¸Ã½Å±¾³öÏÖÒì³£Çé¿ö£¬ÇëÏÈÈ·±£ÒÑ°²×°ºÃpython»·¾³
+echo å¦‚æœä½¿ç”¨è¯¥è„šæœ¬å‡ºç°å¼‚å¸¸æƒ…å†µï¼Œè¯·å…ˆç¡®ä¿å·²å®‰è£…å¥½pythonç¯å¢ƒ
+echo æ­£åœ¨å®‰è£…æ‰€éœ€ä¾èµ–...
 
 pip install requests -i https://pypi.douban.com/simple/
 pip install pytz -i https://pypi.douban.com/simple/

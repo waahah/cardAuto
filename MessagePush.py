@@ -178,8 +178,7 @@ def pushMessage(title, status, token,username,address,time):
         sendMessage = f"{username} 推送消息提醒失败！</br>"
     return sendMessage
 
-def pushAllMessage(allMessage):
-    persionToken = '6613827c4c644c8bb461ba655ca6cb69'
+def pushAllMessage(allMessage, persionToken):
     persionTitle = '所有用户打卡情况统计'
     templateType = 'html'
     url = f'http://www.pushplus.plus/send?token={persionToken}&title={persionTitle}&content={allMessage}&template={templateType}'

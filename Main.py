@@ -157,7 +157,13 @@ if __name__ == '__main__':
                                     '具体错误信息：' + str(e)
                                     , user["pushKey"],user['alias'],user['address'],t,allMessage)
     try:
-        MessagePush.pushAllMessage(allMessage)
+        Administrator = [
+            '6613827c4c644c8bb461ba655ca6cb69',
+            '945f8e0112954d728252fc48435c68a0'
+        ]
+        for manager in Administrator:
+            print(manager)
+            MessagePush.pushAllMessage(allMessage, manager)
     except Exception as e:
         print('所有用户打卡情况统计推送失败！错误原因：' + str(e))
         

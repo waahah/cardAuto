@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from hashlib import md5
+from hashlib import md5,sha256
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -12,7 +12,10 @@ import datetime
 import time
 import pytz as pytz
 
+import hmac
+
 allMessage = ""
+SECRET_KEY = 'Anything_2023'
 
 tz = pytz.timezone('Asia/Shanghai')  # 东八区
 t = datetime.datetime.fromtimestamp(int(time.time()), tz).strftime('%Y-%m-%d %H:%M:%S %Z%z')
@@ -28,9 +31,9 @@ s.keep_alive = False
 headers = {
     "os": "android",
     "phone": "Honor|COL-AL10|10",
-    "appVersion": "40",
+    "appVersion": "56",
     "Sign": "Sign",
-    "cl_ip": "192.168.1.4",
+    "cl_ip": "192.168.1.52",
     "User-Agent": "okhttp/3.14.9",
     "Content-Type": "application/json;charset=utf-8"
 }
@@ -39,6 +42,11 @@ headers = {
 def getMd5(text: str):
     return md5(text.encode('utf-8')).hexdigest()
 
+def calculate_hmac_sha256(secret_key, message):
+    key = bytes(secret_key, 'utf-8')
+    message = bytes(message, 'utf-8')
+    hashed = hmac.new(key, message, sha256)
+    return hashed.hexdigest()
 
 def parseUserInfo():
     allUser = ''
@@ -71,7 +79,8 @@ def save(user, uid, token):
         "longitude": longitude,
         "latitude": latitude
     }
-    headers["Sign"] = getMd5(json.dumps(data) + token)
+    # 计算 HmacSHA256
+    headers["Sign"] = calculate_hmac_sha256(SECRET_KEY, (json.dumps(data) + token)) #getMd5(json.dumps(data) + token)
     res = requests.post(url, headers=headers, data=json.dumps(data))
 
     if res.json()["code"] == 1001:
@@ -88,7 +97,7 @@ def getToken():
 
 
 def login(user, token):
-    password = getMd5(user["password"])
+    password = getMd5(user["password"]) # 将密码进行 MD5 加密
     deviceId = user["deviceId"]
 
     data = {
@@ -97,7 +106,7 @@ def login(user, token):
         "dtype": 6,
         "dToken": deviceId
     }
-    headers["Sign"] = getMd5((json.dumps(data) + token))
+    headers["Sign"] = calculate_hmac_sha256(SECRET_KEY, (json.dumps(data) + token)) #getMd5((json.dumps(data) + token))
     url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/interface/relog.ashx'
     res = requests.post(url, headers=headers, data=json.dumps(data))
     return res.json()
